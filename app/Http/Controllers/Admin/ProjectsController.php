@@ -1,0 +1,166 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Project;
+use Illuminate\Http\Request;
+use App\Http\Requests\StoreProjectRequest;
+use App\Http\Requests\UpdateProjectRequest;
+use App\Models\Technology;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use App\Models\Type;
+use Illuminate\Pagination\Paginator;
+
+
+class ProjectsController extends Controller
+{
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $projects = Project::orderByDesc('id')->paginate(10);
+        return view('admin.projects.index', compact('projects'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        $types = Type::all();
+        $technologies = Technology::all();
+        return view('admin.projects.create', compact('types', 'technologies'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreProjectRequest $request)
+    {
+        $valData = $request->validated();
+
+        $valData['slug'] = Str::slug($request->title, '-');
+
+        if ($request->has('cover_image')) {
+            $file_path = Storage::put('cover_images', $request->cover_image);
+            $valData['cover_image'] = $file_path;
+        }
+
+        //dd($valData);
+        $newProject = Project::create($valData);
+        $newProject->technologies()->attach($request->technologies);
+
+        return to_route('admin.projects.index')->with('status', 'Well Done, New Entry Added Succeffully');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Project $project)
+    {
+        return view('admin.projects.show', compact('project'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Project $project)
+    {
+        $types = Type::all();
+        $technologies = Technology::all();
+        return view('admin.projects.edit', compact('project', 'types', 'technologies'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateProjectRequest $request, Project $project)
+    {
+        $valData = $request->validated();
+
+        $valData['slug'] = Str::slug($request->title, '-');
+        //dd($valData);
+
+        if ($request->has('cover_image')) {
+
+
+            $newThumb = $request->cover_image;
+            $path = Storage::put('cover_images', $newThumb);
+
+            if (!is_Null($project->cover_image) && Storage::fileExists($project->cover_image)) {
+                Storage::delete($project->cover_image);
+            }
+
+            $valData['cover_image'] = $path;
+        }
+
+        $project->update($valData);
+
+        if ($request->has('technologies')) {
+            $project->technologies()->sync($valData['technologies']);
+        }
+        return to_route('admin.projects.show', $project->id)->with('status', 'Well Done, Element Edited Succeffully');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Project $project)
+    {
+
+        $project->Technologies()->detach();
+        $project->delete();
+
+        return to_route('admin.projects.index')->with('status', 'Well Done, Element Moved to the Recycle Bin Succeffully');
+    }
+
+    public function recycle()
+    {
+
+
+        // PAGINATION
+        $trashed_projects = Project::onlyTrashed()->paginate(4);
+
+        return view('admin.projects.recycle', compact('trashed_projects'));
+    }
+
+    public function restore($id)
+    {
+
+        $project = Project::onlyTrashed()->find($id);
+        $project->restore();
+
+        return to_route('admin.projects.recycle')->with('status', 'Well Done, Element Restored Succeffully');
+    }
+
+    public function forceDelete($id)
+    {
+
+        $project = Project::onlyTrashed()->find($id);
+
+        if (!is_Null($project->thumb)) {
+            Storage::delete($project->thumb);
+        }
+
+        /* if ($project->thumb != null && $project->thumb != '') {
+            // dd($project->thumb);
+            Storage::delete($project->thumb);
+        } */
+        $project->technologies()->detach();
+
+        $project->forceDelete();
+
+        return to_route('admin.projects.recycle')->with('status', 'Well Done, Element Deleted Succeffully');
+    }
+
+    public function showTrashed($id)
+    {
+        $project = Project::onlyTrashed()->find($id);
+
+        return view('admin.projects.showTrashed', compact('project'));
+    }
+}
