@@ -25,11 +25,14 @@
                         <h5>{{ $project->title }}</h5>
                     </div>
 
-                    @if (str_contains($project->thumb, 'http'))
-                        <img class="img-fluid" style="height: 400px" src="{{ $project->thumb }}"
+                    @if (str_contains($project->cover_image, 'http'))
+                        <img class="img-fluid img-fluid object-fit-cover" src="{{ $project->cover_image }}"
                             alt="{{ $project->title }}">
+                    @elseif ($project->cover_image)
+                        <img class="img-fluid img-fluid object-fit-cover"
+                            src="{{ asset('storage/' . $project->cover_image) }}">
                     @else
-                        <img class="img-fluid" style="height: 400px" src="{{ asset('storage/' . $project->thumb) }}">
+                        <div class="text-center align-middle">N/A</div>
                     @endif
 
                     <div class="card-body">
