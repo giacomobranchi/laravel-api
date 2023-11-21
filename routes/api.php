@@ -3,6 +3,11 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\Project;
+use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\API\TypeController;
+use App\Http\Controllers\API\TechnologyController;
+use App\Models\Technology;
+use App\Models\Type;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,10 +24,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('projects', function () {
-    $projects = Project::with('type', 'Technologies')->OrderByDesc('id')->Paginate(9);
-    return response()->json([
-        'status' => 'success',
-        'result' => $projects
-    ]);
-});
+Route::get('/projects', [ProjectController::class, 'projects']);
+Route::get('/projects/latest', [ProjectController::class, 'latest_projects']);
+Route::get('/projects/{project:slug}', [ProjectController::class, 'single_project']);
+Route::get('/types', [TypeController::class, 'types']);
+Route::get('/technologies', [TechnologyController::class, 'technologies']);
