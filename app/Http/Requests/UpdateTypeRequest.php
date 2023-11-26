@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+
+class UpdateTypeRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return Auth::id() === 1; // SOLO USER ID 1 PPUO' AGGIORNARE
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'name' => 'required|bail|min:3|max:50|unique:types,name'
+        ];
+    }
+}

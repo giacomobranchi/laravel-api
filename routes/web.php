@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\TypeController;
 use App\Http\Controllers\Admin\ProjectsController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\ProfileController;
@@ -22,9 +23,7 @@ Route::get('/', function () {
     return view('welcome', compact('projects'));
 });
 
-/* Route::get('/dashboard', function () {s
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard'); */
+
 Route::middleware('auth', 'verified')->name('admin.')->prefix('admin')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('projects/restore/{id}', [ProjectsController::class, 'restore'])->name('projects.restore');
@@ -32,7 +31,10 @@ Route::middleware('auth', 'verified')->name('admin.')->prefix('admin')->group(fu
     Route::get('projects/recycle', [ProjectsController::class, 'recycle'])->name('projects.recycle');
     Route::get('projects/recycle/{id}', [ProjectsController::class, 'showTrashed'])->name('projects.showTrashed');
     Route::resource('projects', ProjectsController::class);
+
+    Route::resource('types', TypeController::class)->parameters(['types' => 'type:slug']);
 });
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

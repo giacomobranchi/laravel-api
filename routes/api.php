@@ -8,6 +8,7 @@ use App\Http\Controllers\API\TypeController;
 use App\Http\Controllers\API\TechnologyController;
 use App\Models\Technology;
 use App\Models\Type;
+use App\Http\Controllers\Mail\LeadController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,3 +30,4 @@ Route::get('/projects/latest', [ProjectController::class, 'latest_projects']);
 Route::get('/projects/{project:slug}', [ProjectController::class, 'single_project']);
 Route::get('/types', [TypeController::class, 'types']);
 Route::get('/technologies', [TechnologyController::class, 'technologies']);
+Route::post('/lead', [LeadController::class, 'store']);

@@ -109,6 +109,10 @@
                                     href="{{ route('admin.projects.recycle') }}">
                                     <i class="fa-regular fa-trash-can fa-lg fa-fw"></i> {{ __('Recycle Bin') }}
                                 </a>
+                                <a class="nav-link text-white {{ Route::currentRouteName() == 'admin.types.index' ? 'bg-secondary' : '' }}"
+                                    href="{{ route('admin.types.index') }}">
+                                    <i class="fa-solid fa-list fa-lg fa-fw"></i> {{ __('Types') }}
+                                </a>
 
                             </li>
 

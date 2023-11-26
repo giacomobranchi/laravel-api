@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container">
-        {{-- <h1>ADMIN/PROJECTS/INDEX.BLADE</h1> --}}
+
         <h2 class="fs-4 text-secondary my-4">
             {{ Auth::user()->name }} {{ __('Project List') }}
         </h2>
